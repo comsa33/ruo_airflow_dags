@@ -26,11 +26,12 @@ default_args = {
 }
 
 dag = DAG(
-    "mysql_connect_test",
+    dag_id="example.mysql_connect_test",
     default_args=default_args,
     description="A simple test for MySQL connection",
     schedule_interval=datetime.timedelta(days=1),
     catchup=False,
+    dagrun_timeout=datetime.timedelta(minutes=60),
     tags=["example"],
 )
 
@@ -39,9 +40,10 @@ def mysql_connect_test():
     from airflow.providers.mysql.hooks.mysql import MySqlHook
 
     logging.info("mysql_connect_test")
-    hook = MySqlHook(mysql_conn_id="ruo_mysql")
+    hook = MySqlHook.get_hook(conn_id="ruo_mysql")
     df = hook.get_pandas_df("SELECT * FROM news_scraper.daum_news LIMIT 10")
-    logging.info(df)
+    logging.info(df.info())
+    logging.info(df.head())
 
 
 with dag:
