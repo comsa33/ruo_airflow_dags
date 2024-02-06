@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "ruo-airflow-dags"
+version = "0.1.0"
+description = ""
+authors = ["Ruo <comsa333@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+apache-airflow = "2.7.1"
+pendulum = "^3.0.0"
+pandas = "^2.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
