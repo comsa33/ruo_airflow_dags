@@ -24,6 +24,10 @@ dag = DAG(
 )
 
 
+def a_mysql_connect_test():
+    pass
+
+
 def mysql_connect_test():
     import logging
 
@@ -34,6 +38,8 @@ def mysql_connect_test():
     df = hook.get_pandas_df("SELECT * FROM news_scraper.daum_news LIMIT 10")
     logging.info(df.info())
     logging.info(df.head())
+
+    a_mysql_connect_test()
 
 
 with dag:
