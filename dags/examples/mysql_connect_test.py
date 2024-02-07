@@ -6,7 +6,6 @@ import logging
 import pendulum
 from airflow import DAG
 from airflow.operators.python import PythonVirtualenvOperator
-from airflow.utils.dates import days_ago
 
 local_tz = pendulum.timezone("Asia/Seoul")
 
@@ -14,22 +13,11 @@ required_packages = [
     "airflow-providers-mysql"
 ]
 
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "start_date": days_ago(1),
-    "email": ["comsa333@gmail.com"],
-    "email_on_failure": True,
-    "email_on_retry": True,
-    "retries": 1,
-    "retry_delay": datetime.timedelta(minutes=5),
-}
-
 dag = DAG(
     dag_id="example.mysql_connect_test",
-    default_args=default_args,
     description="A simple test for MySQL connection",
-    schedule_interval=datetime.timedelta(days=1),
+    schedule='@once',
+    start_date=datetime.datetime(2024, 1, 1, tzinfo=local_tz),
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
     tags=["example"],
@@ -54,7 +42,3 @@ with dag:
     )
 
     mysql_connect_test_task
-
-if __name__ == "__main__":
-
-    mysql_connect_test()
