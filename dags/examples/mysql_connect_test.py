@@ -10,7 +10,7 @@ from airflow.operators.python import PythonVirtualenvOperator
 local_tz = pendulum.timezone("Asia/Seoul")
 
 required_packages = [
-    "airflow-providers-mysql"
+    "apache-airflow-providers-mysql[common.sql]",
 ]
 
 dag = DAG(
