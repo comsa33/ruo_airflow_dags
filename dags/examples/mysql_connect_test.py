@@ -24,10 +24,6 @@ dag = DAG(
 )
 
 
-def a_mysql_connect_test():
-    pass
-
-
 def mysql_connect_test():
     import logging
 
@@ -48,5 +44,8 @@ with dag:
         python_callable=mysql_connect_test,
         requirements=required_packages,
     )
+
+    def a_mysql_connect_test():
+        pass
 
     mysql_connect_test_task
