@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import logging
+import traceback
 
 import pendulum
 from airflow import DAG
@@ -26,26 +27,34 @@ dag = DAG(
 
 def mysql_connect_test():
     import logging
+    import traceback
 
     from airflow.providers.mysql.hooks.mysql import MySqlHook
 
     logging.info("mysql_connect_test")
-    hook = MySqlHook.get_hook(conn_id="ruo_mysql")
-    df = hook.get_pandas_df("SELECT * FROM news_scraper.daum_news LIMIT 10")
-    logging.info(df.info())
-    logging.info(df.head())
-
-    a_mysql_connect_test()
+    try:
+        hook = MySqlHook.get_hook(conn_id="ruo_mysql")
+        df = hook.get_pandas_df("SELECT * FROM news_scraper.daum_news LIMIT 10")
+        logging.info(df.info())
+        logging.info(df.head())
+    except Exception as e:
+        logging.error(f"Error: {e}")
+        logging.error(traceback.format_exc())
+        raise e
 
 
 with dag:
-    mysql_connect_test_task = PythonVirtualenvOperator(
-        task_id="mysql_connect_test",
-        python_callable=mysql_connect_test,
-        requirements=required_packages,
-    )
+    logging.info("mysql_connect_test_task")
+    try:
+        mysql_connect_test_task = PythonVirtualenvOperator(
+            task_id="mysql_connect_test",
+            python_callable=mysql_connect_test,
+            requirements=required_packages,
+        )
 
-    def a_mysql_connect_test():
-        pass
-
-    mysql_connect_test_task
+        mysql_connect_test_task
+        logging.info("mysql_connect_test_task done")
+    except Exception as e:
+        logging.error(f"Error: {e}")
+        logging.error(traceback.format_exc())
+        raise e
