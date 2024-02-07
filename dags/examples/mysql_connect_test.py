@@ -25,6 +25,8 @@ dag = DAG(
 
 
 def mysql_connect_test():
+    import logging
+
     from airflow.providers.mysql.hooks.mysql import MySqlHook
 
     logging.info("mysql_connect_test")
