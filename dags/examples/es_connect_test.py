@@ -34,7 +34,8 @@ def es_connect_test():
     logging.info("es_connect_test")
     try:
         hook = ElasticsearchHook.get_hook(conn_id="ruo_es")
-        info = hook.info()
+        es = hook.get_conn().es
+        info = es.info()
         logging.info(info)
     except Exception as e:
         logging.error(f"Error: {e}")
