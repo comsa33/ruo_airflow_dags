@@ -6,14 +6,14 @@ import pendulum
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
-from airflow.utils.dates import days_ago
 
 local_tz = pendulum.timezone("Asia/Seoul")
+start_date = pendulum.now(tz=local_tz).subtract(days=1)
 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': days_ago(1, timezone=local_tz),
+    'start_date': start_date,
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
@@ -25,6 +25,7 @@ dag = DAG(
     default_args=default_args,
     description='Scrape job listings and details from Wanted',
     schedule_interval='0 0 * * *',  # 매일 00시 실행
+    timezone=local_tz,
 )
 
 # 알림 함수 정의
