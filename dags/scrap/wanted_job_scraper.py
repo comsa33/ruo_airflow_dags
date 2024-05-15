@@ -25,7 +25,6 @@ dag = DAG(
     default_args=default_args,
     description='Scrape job listings and details from Wanted',
     schedule_interval='0 0 * * *',  # 매일 00시 실행
-    timezone=local_tz,
 )
 
 # 알림 함수 정의
