@@ -27,6 +27,26 @@ dag = DAG(
     schedule_interval='0 0 * * *',  # 매일 00시 실행
 )
 
+
+def generate_token():
+    params = {
+        "code": "LgNsHkLpVLA5JNJvCNEsi46V8UaXTvMpmea4zbj4UM5r1MOGvWFqGgAAAAQKPXOaAAABj4d1m31Udd9ffL_GXA"
+    }
+    try:
+        response = requests.post("http://ruoserver.iptime.org:32211/kakao/token", params=params)
+        response.raise_for_status()
+        if response.json().get('result_code') == 0:
+            print("토큰을 성공적으로 발급받았습니다.")
+            return True
+        else:
+            print("토큰을 성공적으로 발급받지 못했습니다. 오류메시지:", response.json())
+            raise Exception("Failed to generate token")
+    except Exception as e:
+        traceback.print_exc()
+        print(f"Error: {str(e)}")
+        return False
+
+
 def refresh_token():
     try:
         response = requests.post("http://ruoserver.iptime.org:32211/kakao/refresh-token")
@@ -35,10 +55,13 @@ def refresh_token():
             print("토큰을 성공적으로 갱신했습니다.")
         else:
             print("토큰을 성공적으로 갱신하지 못했습니다. 오류메시지:", response.json())
-            raise Exception("Failed to refresh token")
+            token_gen_success = generate_token()
+            if not token_gen_success:
+                raise Exception("Failed to refresh token")
     except Exception as e:
         traceback.print_exc()
         raise e
+
 
 # 알림 함수 정의
 def send_kakao_message(message):
@@ -67,6 +90,7 @@ def send_kakao_message(message):
         print(str(e))
         traceback.print_exc()
 
+
 def scrape_job_ids():
     try:
         response = requests.post("http://ruoserver.iptime.org:32001/api/v1/wanted-joblist/scrape")
@@ -76,6 +100,7 @@ def scrape_job_ids():
         traceback.print_exc()
         raise e
 
+
 def scrape_job_details():
     try:
         response = requests.post("http://ruoserver.iptime.org:32001/api/v1/wanted-jobdetails/scrape")
@@ -84,6 +109,7 @@ def scrape_job_details():
     except Exception as e:
         traceback.print_exc()
         raise e
+
 
 start_task = DummyOperator(
     task_id='start',
