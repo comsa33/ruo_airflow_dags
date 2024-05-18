@@ -6,6 +6,7 @@ import pendulum
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.models import Variable
 
 local_tz = pendulum.timezone("Asia/Seoul")
 start_date = pendulum.now(tz=local_tz).subtract(days=1)
@@ -25,15 +26,19 @@ dag = DAG(
     default_args=default_args,
     description='Scrape job listings and details from Wanted',
     schedule_interval='0 0 * * *',  # 매일 00시 실행
+    tags=['wanted', 'scrap', 'job'],
 )
+
+kakao_access_code = Variable.get("kakao_access_code")
+kakao_token_gen_url = Variable.get("kakao_token_gen_url")
+kakao_refresh_token_url = Variable.get("kakao_refresh_token_url")
+kakao_message_url = Variable.get("kakao_message_url")
 
 
 def generate_token():
-    params = {
-        "code": "LgNsHkLpVLA5JNJvCNEsi46V8UaXTvMpmea4zbj4UM5r1MOGvWFqGgAAAAQKPXOaAAABj4d1m31Udd9ffL_GXA"
-    }
+    params = { "code": kakao_access_code }
     try:
-        response = requests.post("http://ruoserver.iptime.org:32211/kakao/token", params=params)
+        response = requests.post(kakao_token_gen_url, params=params)
         response.raise_for_status()
         if response.json().get('result_code') == 0:
             print("토큰을 성공적으로 발급받았습니다.")
@@ -49,7 +54,7 @@ def generate_token():
 
 def refresh_token():
     try:
-        response = requests.post("http://ruoserver.iptime.org:32211/kakao/refresh-token")
+        response = requests.post(kakao_refresh_token_url)
         response.raise_for_status()
         if response.json().get('result_code') == 0:
             print("토큰을 성공적으로 갱신했습니다.")
@@ -66,18 +71,14 @@ def refresh_token():
 # 알림 함수 정의
 def send_kakao_message(message):
     try:
-        url = "http://ruoserver.iptime.org:32211/kakao/message"
         headers = {
             'Content-Type': 'application/json',
         }
         data = {
             "object_type": "text",
-            "text": message,
-            "link": {
-                "web_url": "http://ruoserver.iptime.org:31111/home"
-            }
+            "text": message
         }
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(kakao_message_url, headers=headers, json=data)
         response.raise_for_status()
         
         if response.json().get('result_code') == 0:
