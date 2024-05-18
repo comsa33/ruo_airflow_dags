@@ -27,6 +27,19 @@ dag = DAG(
     schedule_interval='0 0 * * *',  # 매일 00시 실행
 )
 
+def refresh_token():
+    try:
+        response = requests.post("http://ruoserver.iptime.org:32211/kakao/refresh-token")
+        response.raise_for_status()
+        if response.json().get('result_code') == 0:
+            print("토큰을 성공적으로 갱신했습니다.")
+        else:
+            print("토큰을 성공적으로 갱신하지 못했습니다. 오류메시지:", response.json())
+            raise Exception("Failed to refresh token")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+
 # 알림 함수 정의
 def send_kakao_message(message):
     try:
@@ -82,6 +95,12 @@ end_task = DummyOperator(
     dag=dag,
 )
 
+refresh_token_task = PythonOperator(
+    task_id='refresh_token',
+    python_callable=refresh_token,
+    dag=dag,
+)
+
 notify_job_list_start = PythonOperator(
     task_id='notify_job_list_start',
     python_callable=send_kakao_message,
@@ -123,4 +142,4 @@ notify_job_details_end = PythonOperator(
 )
 
 # DAG 설정
-start_task >> notify_job_list_start >> scrape_job_ids_task >> notify_job_list_end >> notify_job_details_start >> scrape_job_details_task >> notify_job_details_end >> end_task
+start_task >> refresh_token_task >> notify_job_list_start >> scrape_job_ids_task >> notify_job_list_end >> notify_job_details_start >> scrape_job_details_task >> notify_job_details_end >> end_task
