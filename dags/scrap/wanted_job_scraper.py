@@ -1,5 +1,5 @@
 import traceback
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import requests
 import pendulum
@@ -71,6 +71,9 @@ def refresh_token():
 # 알림 함수 정의
 def send_kakao_message(message):
     try:
+        # 한국 시간으로 현재 시간을 가져옴
+        now = datetime.now().astimezone(local_tz).strftime("%Y-%m-%d %H:%M:%S")
+        message = f"[{now}] {message}"
         headers = {
             'Content-Type': 'application/json',
         }
