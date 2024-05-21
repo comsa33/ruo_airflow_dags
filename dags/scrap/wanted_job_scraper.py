@@ -35,39 +35,6 @@ kakao_refresh_token_url = Variable.get("kakao_refresh_token_url")
 kakao_message_url = Variable.get("kakao_message_url")
 
 
-def generate_token():
-    params = { "code": kakao_access_code }
-    try:
-        response = requests.post(kakao_token_gen_url, params=params)
-        response.raise_for_status()
-        if response.json().get('result_code') == 0:
-            print("토큰을 성공적으로 발급받았습니다.")
-            return True
-        else:
-            print("토큰을 성공적으로 발급받지 못했습니다. 오류메시지:", response.json())
-            raise Exception("Failed to generate token")
-    except Exception as e:
-        traceback.print_exc()
-        print(f"Error: {str(e)}")
-        return False
-
-
-def refresh_token():
-    try:
-        response = requests.post(kakao_refresh_token_url)
-        response.raise_for_status()
-        if response.json().get('result_code') == 0:
-            print("토큰을 성공적으로 갱신했습니다.")
-        else:
-            print("토큰을 성공적으로 갱신하지 못했습니다. 오류메시지:", response.json())
-            token_gen_success = generate_token()
-            if not token_gen_success:
-                raise Exception("Failed to refresh token")
-    except Exception as e:
-        traceback.print_exc()
-        raise e
-
-
 # 알림 함수 정의
 def send_kakao_message(message):
     try:
@@ -122,12 +89,6 @@ start_task = DummyOperator(
 
 end_task = DummyOperator(
     task_id='end',
-    dag=dag,
-)
-
-refresh_token_task = PythonOperator(
-    task_id='refresh_token',
-    python_callable=refresh_token,
     dag=dag,
 )
 
