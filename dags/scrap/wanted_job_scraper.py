@@ -172,4 +172,4 @@ notify_job_details_end = PythonOperator(
 )
 
 # DAG 설정
-start_task >> refresh_token_task >> notify_job_list_start >> scrape_job_ids_task >> notify_job_list_end >> notify_job_details_start >> scrape_job_details_task >> notify_job_details_end >> end_task
+start_task >> notify_job_list_start >> scrape_job_ids_task >> notify_job_list_end >> notify_job_details_start >> scrape_job_details_task >> notify_job_details_end >> end_task
