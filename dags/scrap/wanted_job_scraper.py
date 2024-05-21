@@ -43,7 +43,8 @@ def send_kakao_message(message):
         }
         data = {
             "object_type": "text",
-            "text": message
+            "text": message,
+            "link": {},
         }
         response = requests.post(kakao_message_url, headers=headers, json=data)
         response.raise_for_status()
