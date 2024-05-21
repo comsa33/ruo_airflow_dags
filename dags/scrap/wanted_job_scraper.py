@@ -6,6 +6,7 @@ import pendulum
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.models import Variable
 
 local_tz = pendulum.timezone("Asia/Seoul")
 start_date = pendulum.now(tz=local_tz).subtract(days=1)
@@ -27,6 +28,9 @@ dag = DAG(
     schedule_interval='0 0 * * *',  # 매일 00시 실행
     tags=['wanted', 'scrap', 'job'],
 )
+
+kakao_message_url = Variable.get("kakao_message_url")
+
 
 # 알림 함수 정의
 def send_kakao_message(message):
